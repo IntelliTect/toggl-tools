@@ -1,0 +1,12 @@
+{
+  "name": "ExportToggl",
+  "version": "0.0.1",
+  "description": "Export project data from Toggl",
+  "main": "exportToggl.js",
+  "author": {
+    "name": "phil",
+    "email": ""
+  },
+  "dependencies": {
+  }
+}
