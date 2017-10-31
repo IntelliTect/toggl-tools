@@ -1,5 +1,6 @@
 var request = require('request');
 var fs = require('fs');
+var writeFile = true;	//todo make it an option
 
 //todo get all time entries
 //todo track differences
@@ -63,18 +64,18 @@ function getProjects(workspace) {
 	
 }
 
-function getTimeEntries(workspace) {
-	// todo only get 50 at a time
-	// todo remember where we left off
-	// todo check status for rejects
+function getTimeEntries(workspace, currentPageNumber) {
+	//todo remember where we left off/stash the latest and earliest time entry
+	//todo check status for rejects
 
-	// curl -v -u 1971800d4d82861d8f2c1651fea4d212:api_token -X GET 
 	// "https://toggl.com/reports/api/v2/details?workspace_id=123&since=2013-05-19&until=2013-05-20&user_agent=api_test"
     // GET "https://www.toggl.com/api/v8/time_entries?start_date=2013-03-10T15%3A42%3A46%2B02%3A00&end_date=2013-03-12T15%3A42%3A46%2B02%3A00"
 	// dates must be ISO 8601
 	
-	// requestOptions.url = 'https://www.toggl.com/api/v8/time_entries';
-	requestOptions.url = 'https://www.toggl.com/reports/api/v2/details?workspace_id='+workspace.id+'&'+userAgent;
+	if (!currentPageNumber) {
+		currentPageNumber = 1;
+	}
+	requestOptions.url = 'https://www.toggl.com/reports/api/v2/details?workspace_id='+workspace.id+'&page='+currentPageNumber+'&'+userAgent;
 	
 	request(requestOptions, function(err, res, detailedReport){
 		if (err) {
@@ -82,19 +83,20 @@ function getTimeEntries(workspace) {
 			return;
 		}
 		if (res.statusCode === 200) {
-
-			console.log('detailed Report: '+detailedReport.total_count+', '+detailedReport.per_page);
-			console.log(detailedReport.data);
-
-			// timeEntries.forEach(function(element) {
-			// 	console.log('' + element.name);
-			// }, this);
-
+			pageCount = detailedReport.total_count;
+			console.log('detailed Report page count '+detailedReport.total_count+' per page, '+detailedReport.per_page);
+			if (writeFile) {
+				var fileName = "timeentries_"+currentPageNumber+".json";
+				fs.writeFile(fileName, JSON.stringify(detailedReport.data), (err) => {
+					if (err) {
+						console.log('Error writing'+fileName+': '+err);
+					}
+				});
+			}
 		}
 		else {
 			console.log('getTimeEntries status code: ' + res.statusCode);
 		}
-
 		return;
 	});
 
@@ -103,12 +105,10 @@ function getTimeEntries(workspace) {
 
 function processTimeEntries(timeEntries) {
 	// stubbed for later
-
 	console.log('TimeEntry count: ' + timeEntries.length)
 	timeEntries.forEach(function(element) {
 		console.log('' + element.description + ', ' + element.duration);
 	}, this);
-
 }
 
 function getWorkspace() {
@@ -128,9 +128,10 @@ function getWorkspace() {
 			togglWorkspace = body[0];
 			console.log('Workspace id: '+togglWorkspace.id+' name: '+togglWorkspace.name);
 
+			// don't do this here... standalone functions
 			// getClients(togglWorkspace);
 			// getProjects(togglWorkspace);
-			getTimeEntries(togglWorkspace);
+
 		}
 		else {
 			console.log('status code: ' + res.statusCode);
@@ -140,7 +141,22 @@ function getWorkspace() {
 	});
 }
 
-console.log('get workspace >>>');
+console.log('get workspace');
 getWorkspace();
-console.log('<<<');
+
+pageNumber = 1;
+pageCount = 1;
+
+function scheduleRequest() {
+	console.log('next request '+pageCount);
+	getTimeEntries(togglWorkspace, pageNumber);
+	pageNumber++;
+	if (pageCount < pageNumber) {
+		console.log('all done: '+pageCount);
+		return;
+	} else {
+		setTimeout(scheduleRequest, 2000)
+	}
+}
+setTimeout(scheduleRequest, 2000);
 
