@@ -9,16 +9,7 @@ const url = 'mongodb://localhost:27017/toggl'
 var writeFile = true;	//todo make it an option
 const dataPath = "c:\\data\\";
 
-//todo get all time entries
-//todo track differences
-//todo save files
-//todo check for leaky bucket
-//todo get api token from non checked in config, put template in repo
-//todo chain after workspace
-//todo Write to database
-//todo process changes
-//todo https://azure.microsoft.com/en-us/blog/introducing-the-azure-cosmosdb-change-feed-processor-library/
-//
+
 
 var apiToken = 'b842531c68f5f20ccc091803d5584140';
 var togglWorkspace = null;
@@ -116,10 +107,6 @@ function getDetailedReportToFiles(workspace, projectID, currentPageNumber) {
 	//todo remember where we left off/stash the latest and earliest time entry
 	//todo check status for rejects
 
-	// "https://toggl.com/reports/api/v2/details?workspace_id=123&since=2013-05-19&until=2013-05-20&user_agent=api_test"
-    // GET "https://www.toggl.com/api/v8/time_entries?start_date=2013-03-10T15%3A42%3A46%2B02%3A00&end_date=2013-03-12T15%3A42%3A46%2B02%3A00"
-	// dates must be ISO 8601
-	
 	if (!currentPageNumber) {
 		currentPageNumber = 1;
 	}
@@ -160,12 +147,13 @@ function getDetailedReportToFiles(workspace, projectID, currentPageNumber) {
 
 function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber) {
 	//todo remember where we left off/stash the latest and earliest time entry
-	//todo check status for rejects
 
 	if (!currentPageNumber) {
 		currentPageNumber = 1;
 	}
-	
+	console.log('requesting page '+currentPageNumber);
+
+	//todo hmm
 	var since = new Date();
 	since = date.addDays(since, -364);
 
@@ -183,16 +171,20 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 			return;
 		}
 		if (res.statusCode === 200) {
-			pageCount = detailedReport.total_count;
 			console.log('detailed Report item count '+detailedReport.total_count+' per page, '+detailedReport.per_page);
-			timeEntries.insert(detailedReport.data, (error, result) => {
-				if (error) {
-					console.log('Error inserting data: ' + error)
-				}
-				else {
-					setTimeout(getDetailedReport, 1000, timeEntries, workspace, projectID, currentPageNumber+1);
-				}
-			})
+			if (detailedReport.data.length > 0) {
+				timeEntries.insert(detailedReport.data, (error, result) => {
+					if (error) {
+						console.log('Error inserting data: ' + error)
+					}
+				})
+			}
+			if (detailedReport.total_count < detailedReport.per_page) {
+				console.log('done requesting data')
+			}
+			else {
+				setTimeout(getDetailedReport, 1000, timeEntries, workspace, projectID, currentPageNumber+1);
+			}
 		}
 		else {
 			console.log('getTimeEntries status code: ' + res.statusCode);
@@ -231,15 +223,16 @@ function getWorkspace() {
 	});
 }
 
-console.log('get workspace');
+console.log('geting workspace... ');
 getWorkspace();
 
 var pageNumber = 1;
 var projectId = "";
 var projectName = process.argv[2];
 
-console.log('project: '+process.argv[2]);
-
+if (projectName) {
+	console.log('getting time entries for project: '+projectName);
+}
 if (projectName === "StayAlfred") {
 	// *** project codes
 	// StayAlfred https://toggl.com/app/projects/360536/edit/95285334
