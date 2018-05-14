@@ -4,14 +4,15 @@ var date = require('date-and-time');
 
 const mongodb = require('mongodb')
 const mongo = mongodb.MongoClient
-const url = 'mongodb://localhost:27017/toggl'
+
+// todo configure
+const url = 'mongodb://toggldb:w8lwy6xeyIIyoqp3Aeh96RGuDLAnTBINS132Qc8DtpTalbY2ibyo8xeRrCnAQ6WNYrOacvSnvHPdV9jwykPESw==@toggldb.documents.azure.com:10255/?ssl=true'
+// const url = 'mongodb://localhost:27017/toggl'
 
 var writeFile = true;	//todo make it an option
 const dataPath = "c:\\data\\";
 
-
-
-var apiToken = 'b842531c68f5f20ccc091803d5584140';
+var apiToken = 'b842531c68f5f20ccc091803d5584140'; //todo configure
 var togglWorkspace = null;
 var RequestOptions = {
 	url: '',
@@ -179,8 +180,9 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 					}
 				})
 			}
-			if (detailedReport.total_count < detailedReport.per_page) {
+			if (detailedReport.total_count < detailedReport.per_page*currentPageNumber) {
 				console.log('done requesting data')
+				//todo finally close everything up
 			}
 			else {
 				setTimeout(getDetailedReport, 1000, timeEntries, workspace, projectID, currentPageNumber+1);
@@ -189,11 +191,11 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 		else {
 			console.log('getTimeEntries status code: ' + res.statusCode);
 		}
+		console.log('request complete')
 		return;
 	});
 
 }
-
 
 function processTimeEntries(timeEntries) {
 	// stubbed for later
@@ -223,7 +225,23 @@ function getWorkspace() {
 	});
 }
 
-console.log('geting workspace... ');
+function scheduleRequest() {
+	mongo.connect(url, (err, db) => {
+		if (err) {
+			console.log('Error connecting to db: '+err)
+			return process.exit(1)
+		}
+		var time = db.collection('projectentries')
+		console.log('connected')
+
+		setTimeout(getDetailedReport, 1000, time, togglWorkspace, projectId);
+	})
+}
+
+
+// do the do
+
+console.log('getting workspace... ');
 getWorkspace();
 
 var pageNumber = 1;
@@ -243,26 +261,13 @@ else if (projectName === "WATrust") {
 	projectId = "97366140";
 }
 
-function scheduleRequest() {
-	mongo.connect(url, (err, db) => {
-		if (err) {
-			console.log('Error connecting to db: '+err)
-			return process.exit(1)
-		}
-		var time = db.collection('entries')
-		console.log('connected')
-
-		setTimeout(getDetailedReport, 1000, time, togglWorkspace, projectId);
-	})
-}
 
 // todo use async/await to insure we have a workspace vs. a timer
 setTimeout(scheduleRequest, 2000)
 
-// todo finally
-// db.close()
-
 console.log('ended')
+
+
 
 
 
