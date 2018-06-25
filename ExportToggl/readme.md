@@ -4,6 +4,12 @@ API Token
 
 [Toggl API Docs](https://github.com/toggl/toggl_api_docs)
 
+# Notes on Cosmos/MongoDB
+
+data written to Azure CosmosDB
+"private" subscription due to cost data
+[MongoDB Docs](https://docs.mongodb.com/manual/reference/)
+
 ##todo
 -process changes
 -Recently added data and/or updated data?

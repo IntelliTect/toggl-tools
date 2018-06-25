@@ -10,7 +10,6 @@
             "name": "Launch Program",
             "program": "${workspaceFolder}\\exportToggl.js",
             "args": [
-                "StayAlfred"
             ]
         }
     ]
