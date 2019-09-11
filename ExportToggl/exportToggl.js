@@ -29,6 +29,7 @@ var pageCount = 0;
 
 var pageNumber = 1;
 var projectId = "";
+var param2 = process.argv[2];
 var projectName = process.argv[2];
 
 if (projectName) {
@@ -92,7 +93,7 @@ function getTimeEntries(workspace, currentPageNumber) {
 	if (!currentPageNumber) {
 		currentPageNumber = 1;
 	}
-	RequestOptions.url = 'https://www.toggl.com/reports/api/v2/details?workspace_id='+workspace.id+'&page='+currentPageNumber+'&'+userAgent;
+	RequestOptions.url = 'https://www.toggl.com/reports/api/v2/details?workspace_id='+workspace.id+'&page='+currentPageNumber+'&'+userAgent+'&rounding=on';
 	
 	Request(RequestOptions, function(err, res, detailedReport){
 		if (err) {
@@ -120,9 +121,8 @@ function getTimeEntries(workspace, currentPageNumber) {
 
 }
 
-
-
 function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber) {
+
 	//todo remember where we left off/stash the latest and earliest time entry
 
 	if (!currentPageNumber) {
@@ -141,7 +141,8 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 	}
 	RequestOptions.url = RequestOptions.url + `&page=${currentPageNumber}&since=${date.format(since, "YYYY-MM-DD")}`;
 	RequestOptions.url = RequestOptions.url + `&${userAgent}`;
-	
+	RequestOptions.url = RequestOptions.url + `&rounding=on`;
+
 	Request(RequestOptions, function(err, res, detailedReport){
 		if (err) {
 			console.dir(err);
@@ -161,7 +162,7 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 				//todo finally close everything up
 			}
 			else {
-				setTimeout(getDetailedReport, 1000, timeEntries, workspace, projectID, currentPageNumber+1);
+				setTimeout(getDetailedReport, 2000, timeEntries, workspace, projectID, currentPageNumber+1);
 			}
 		}
 		else {
@@ -171,14 +172,6 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 		return;
 	});
 
-}
-
-function processTimeEntries(timeEntries) {
-	// stubbed for later
-	console.log('TimeEntry count: ' + timeEntries.length)
-	timeEntries.forEach(function(element) {
-		console.log('' + element.description + ', ' + element.duration);
-	}, this);
 }
 
 function removeTimeEntries() {
@@ -235,7 +228,7 @@ function scheduleRequest() {
 }
 
 //todo uh... make this optional once we get incremental figured out
-if (param2 = "init") {
+if (param2 === "init") {
 	console.log('removing collection... ');
 	removeTimeEntries();
 }
