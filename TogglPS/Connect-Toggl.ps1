@@ -13,21 +13,19 @@ $global:TglInitialized = $false
 [DateTimeOffset]$global:TglDate = Get-Date
 $global:TglMe = $null
 $global:TglWorkspace = $null
-$global:TglProjectID = 2655186   # default Admin project id
-
-$username = 'phil@intellitect.com'
-$password = '***'
-$apitoken = 'b842531c68f5f20ccc091803d5584140'
+$global:TglProjectID
 
 $reportUri = 'https://toggl.com/reports/api/v2/details'
 $projectsUri = 'https://www.toggl.com/api/v8/projects'
 
-$headers = @{
-    'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($apitoken + ':api_token'));
-    'Content-Type' = 'application/json'
-}
+$global:headers = @{}
 
-Function Initialize-Toggl() {
+Function Initialize-Toggl([string]$APIToken) {
+    $global:headers = @{
+        'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($apitoken + ':api_token'));
+        'Content-Type' = 'application/json'
+    }
+
     # get info about me
     $aboutMeUri = 'https://www.toggl.com/api/v8/me'
     $global:TglMe = Invoke-RestMethod -Uri $aboutMeUri -Method Get -Headers $headers
