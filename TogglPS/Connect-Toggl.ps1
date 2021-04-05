@@ -51,9 +51,19 @@ Function Set-TglDate([DateTimeOffset]$NewDate ) {
 }
 
 Function Get-TglTimeEntries() {
+    param (
+        $TimeEntryID = $null
+    )
+    
     # GET "https://www.toggl.com/api/v8/time_entries?start_date=2013-03-10T15%3A42%3A46%2B02%3A00&end_date=2013-03-12T15%3A42%3A46%2B02%3A00"
     # dates must be ISO 8601
+    # only returns last 9 days by default
+    # max of 1000 entries returned
+
     $timeEntriesUri = 'https://www.toggl.com/api/v8/time_entries'
+    if ($TimeEntryID) {
+        $timeEntriesUri += "/$TimeEntryID"
+    }
     return Invoke-RestMethod -Uri $timeEntriesUri -Method Get -Headers $headers
 }
 
@@ -67,7 +77,7 @@ Function Get-TglClients() {
 Function Get-TglProjects() {
     # todo figure out types, if I filter the project list, I lost type info as in
     #  foreach ($p in ($projects.cid -eq 884250))  { $p, $p.GetType() }
-    $workspaceProjectsUri = 'https://www.toggl.com/api/v8/workspaces/'+ $TglWorkspace.id+'/projects'
+    $workspaceProjectsUri = 'https://www.toggl.com/api/v8/workspaces/'+ $TglWorkspace.id+'/projects?active=both'
     $global:TglProjects = Invoke-RestMethod -Uri $workspaceProjectsUri -Method Get -Headers $headers
     $global:TglProjects
 }
@@ -84,6 +94,52 @@ Function Get-TglDetailedReport() {
     $report
 }
 
+
+function Get-TglDetailedReport2 {
+    param (
+        [DateTime]$Since,
+        [DateTime]$Until,
+        [string]$UserAgent = $null,
+        [string]$UserIDs = $null,
+        [string]$ProjectIDs = $null
+    )
+	
+    $pageNumber = 1
+    $urlBase = "https://www.toggl.com/reports/api/v2/details?workspace_id=$($TglWorkspace.id)&user_agent=$userAgent&rounding=on&display_hours=decimal"
+    if ($Since) {
+        $urlBase += "&since=$($Since.ToString('o'))"
+    }
+    if ($Until) {
+        $urlBase += "&until=$($Until.ToString('o'))"
+    }
+    if ($UserIDs) {
+        $urlBase += "&user_ids=$UserIDs"
+    }
+    if ($ProjectIDs) {
+        $urlBase += "&project_ids=$ProjectIDs"
+    }
+    $url = $urlBase + "&page=$pageNumber"
+    $report = @()
+    $keepGoing = $true
+
+    do {
+        $response = Invoke-RestMethod -Uri $url -Method Get -Headers $headers
+        Write-Debug "$(Get-Date -Format 's'): Current page: $pageNumber Response total count: $($response.total_count) Response per page: $($response.per_page)"
+        $report += $response.data
+
+        if ($response.per_page*$pageNumber -lt $response.total_count) {
+            $pageNumber += 1
+            $url = $urlBase + "&page=$pageNumber"
+            Start-Sleep -Seconds 1
+        }
+        else {
+            $keepGoing = $false
+        }
+
+    } while ($keepGoing)
+
+    return $report
+}
 
 Function Add-TglTimeEntry {
     #todo parameters for project, customer, hours, date with defaults using preset values
