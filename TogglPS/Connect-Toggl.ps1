@@ -62,8 +62,9 @@ Function Get-TglTimeEntries() {
 
     $timeEntriesUri = 'https://www.toggl.com/api/v8/time_entries'
     if ($TimeEntryID) {
-        $timeEntriesUri += "/$TimeEntryID"
+        $timeEntriesUri += "`/$TimeEntryID"
     }
+    write-debug "URL: $timeEntriesUri"
     return Invoke-RestMethod -Uri $timeEntriesUri -Method Get -Headers $headers
 }
 
