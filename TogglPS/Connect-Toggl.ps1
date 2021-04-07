@@ -14,13 +14,17 @@ $global:TglInitialized = $false
 $global:TglMe = $null
 $global:TglWorkspace = $null
 $global:TglProjectID
+$global:TglUserAgent
 
 $reportUri = 'https://toggl.com/reports/api/v2/details'
 $projectsUri = 'https://www.toggl.com/api/v8/projects'
 
 $global:headers = @{}
 
-Function Initialize-Toggl([string]$APIToken) {
+Function Initialize-Toggl([string]$APIToken, [string]$UserAgent) {
+    if ($UserAgent) {
+        $global:TglUserAgent = $UserAgent
+    }
     $global:headers = @{
         'Authorization' = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($apitoken + ':api_token'));
         'Content-Type' = 'application/json'
@@ -68,9 +72,9 @@ Function Get-TglTimeEntries() {
     return Invoke-RestMethod -Uri $timeEntriesUri -Method Get -Headers $headers
 }
 
-Function Get-TglClients() {
+Function Get-TglClients($WorkspaceID = $TglWorkspace.id) {
     #todo get workspace if not gotten
-    $workspaceClientsUri = 'https://www.toggl.com/api/v8/workspaces/'+$TglWorkspace.id+'/clients'
+    $workspaceClientsUri = 'https://www.toggl.com/api/v8/workspaces/'+$WorkspaceID+'/clients'
     $Tglclients = Invoke-RestMethod -Uri $workspaceClientsUri -Method Get -Headers $headers
     $TglClients
 }
@@ -89,12 +93,11 @@ Function Set-TglProject() {
     return "not implemented"
 }
 
-Function Get-TglDetailedReport() {
-    $detailedReportUri = 'https://toggl.com/reports/api/v2/details?user_agent=phil@intellitect.com&workspace_id=' + $TglWorkspace.id
+Function Get-TglDetailedReport($UserAgent = $global:TglUserAgent, $WorkspaceID = $TglWorkspace.id) {
+    $detailedReportUri = "https://toggl.com/reports/api/v2/details?user_agent=$UserAgent&workspace_id=$WorkspaceID"
     $report = Invoke-RestMethod -Uri $detailedReportUri -Method Get -Headers $headers
     $report
 }
-
 
 function Get-TglDetailedReport2 {
     param (
@@ -102,11 +105,12 @@ function Get-TglDetailedReport2 {
         [DateTime]$Until,
         [string]$UserAgent = $null,
         [string]$UserIDs = $null,
-        [string]$ProjectIDs = $null
+        [string]$ProjectIDs = $null,
+        [string]$WorkspaceID = $TglWorkspace.id
     )
 	
     $pageNumber = 1
-    $urlBase = "https://www.toggl.com/reports/api/v2/details?workspace_id=$($TglWorkspace.id)&user_agent=$userAgent&rounding=on&display_hours=decimal"
+    $urlBase = "https://www.toggl.com/reports/api/v2/details?workspace_id=$WorkspaceID&user_agent=$userAgent&rounding=on&display_hours=decimal"
     if ($Since) {
         $urlBase += "&since=$($Since.ToString('o'))"
     }
