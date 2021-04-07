@@ -131,7 +131,7 @@ function Get-TglDetailedReport2 {
         if ($response.per_page*$pageNumber -lt $response.total_count) {
             $pageNumber += 1
             $url = $urlBase + "&page=$pageNumber"
-            Start-Sleep -Seconds 1
+            Start-Sleep -Milliseconds 500
         }
         else {
             $keepGoing = $false
