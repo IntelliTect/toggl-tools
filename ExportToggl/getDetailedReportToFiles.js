@@ -9,7 +9,7 @@ function getDetailedReportToFiles(workspace, projectID, currentPageNumber) {
 	var since = new Date();
 	since = date.addDays(since, -364);
 
-	RequestOptions.url = `https://www.toggl.com/reports/api/v2/details`;
+	RequestOptions.url = `https://api.track.toggl.com/reports/v2/details`;
 	RequestOptions.url = RequestOptions.url + `?workspace_id=${workspace.id}&project_ids=${projectID}&page=${currentPageNumber}`;
 	RequestOptions.url = RequestOptions.url + `&since=${date.format(since, "YYYY-MM-DD")}`;
 	RequestOptions.url = RequestOptions.url + `&${userAgent}`;

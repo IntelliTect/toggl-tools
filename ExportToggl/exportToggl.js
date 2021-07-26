@@ -47,7 +47,7 @@ else if (projectName === "WATrust") {
 
 function getClients(workspace) {
 	// todo get workspace if not gotten
-	RequestOptions.url = 'https://www.toggl.com/api/v8/workspaces/'+workspace.id+'/clients'
+	RequestOptions.url = 'https://api.track.toggl.com/v8/workspaces/'+workspace.id+'/clients'
 
 	Request(RequestOptions, function(err, res, clients){
 
@@ -65,7 +65,7 @@ function getClients(workspace) {
 }
 
 function getProjects(workspace) {
-	RequestOptions.url = 'https://www.toggl.com/api/v8/workspaces/'+workspace.id+'/projects'
+	RequestOptions.url = 'https://api.track.toggl.com/v8/workspaces/'+workspace.id+'/projects'
 
 	Request(RequestOptions, function(err, res, projects){
 		if (err) {
@@ -87,13 +87,13 @@ function getTimeEntries(workspace, currentPageNumber) {
 	//todo check status for rejects
 
 	// "https://toggl.com/reports/api/v2/details?workspace_id=123&since=2013-05-19&until=2013-05-20&user_agent=api_test"
-    // GET "https://www.toggl.com/api/v8/time_entries?start_date=2013-03-10T15%3A42%3A46%2B02%3A00&end_date=2013-03-12T15%3A42%3A46%2B02%3A00"
+    // GET "https://api.track.toggl.com/v8/time_entries?start_date=2013-03-10T15%3A42%3A46%2B02%3A00&end_date=2013-03-12T15%3A42%3A46%2B02%3A00"
 	// dates must be ISO 8601
 	
 	if (!currentPageNumber) {
 		currentPageNumber = 1;
 	}
-	RequestOptions.url = 'https://www.toggl.com/reports/api/v2/details?workspace_id='+workspace.id+'&page='+currentPageNumber+'&'+userAgent+'&rounding=on';
+	RequestOptions.url = 'https://api.track.toggl.com/reports/v2/details?workspace_id='+workspace.id+'&page='+currentPageNumber+'&'+userAgent+'&rounding=on';
 	
 	Request(RequestOptions, function(err, res, detailedReport){
 		if (err) {
@@ -134,7 +134,7 @@ function getDetailedReport(timeEntries, workspace, projectID, currentPageNumber)
 	var since = new Date();
 	since = date.addDays(since, -364);
 
-	RequestOptions.url = `https://www.toggl.com/reports/api/v2/details`;
+	RequestOptions.url = `https://api.track.toggl.com/reports/v2/details`;
 	RequestOptions.url = RequestOptions.url + `?workspace_id=${workspace.id}`
 	if (projectID) {
 		RequestOptions.url = RequestOptions.url + `&project_ids=${projectID}`;
@@ -194,7 +194,7 @@ function removeTimeEntries() {
 }
 
 function getWorkspace() {
-	RequestOptions.url = 'https://www.toggl.com/api/v8/workspaces';
+	RequestOptions.url = 'https://api.track.toggl.com/v8/workspaces';
 	Request(RequestOptions, function(err, res, body){
 		if (err) {
 			console.dir(err);
