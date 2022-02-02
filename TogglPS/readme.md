@@ -1,6 +1,6 @@
 # Toggl PowerShell Tools
 
-WIP: starting of a PowerShell module of Toggl utilties
+WIP: PowerShell module of Toggl utilties
 
 # Getting Started
 Start by loading Connect-Toggl into PowerShell context
@@ -18,7 +18,7 @@ This creates a global security header that will be used in other calls in the ap
 Not calling Initialize-Toggl first will cause all other calls to fail
 
 # Using the utilities
-Most of the functions return the body of a Toggl API response as a Powershell custom object or array of custom objeccts.
+Most of the functions return the body of a Toggl API response as a Powershell custom object or array of custom objects.
 
 Output from a function is suitable for use in the Powershell pipeline
 
