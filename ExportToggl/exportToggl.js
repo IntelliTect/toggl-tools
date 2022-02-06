@@ -6,13 +6,13 @@ const mongodb = require('mongodb')
 const mongo = mongodb.MongoClient
 
 // todo configure
-const url = 'mongodb://toggldb:w8lwy6xeyIIyoqp3Aeh96RGuDLAnTBINS132Qc8DtpTalbY2ibyo8xeRrCnAQ6WNYrOacvSnvHPdV9jwykPESw==@toggldb.documents.azure.com:10255/?ssl=true'
+// const url = 'mongodb://toggldb:<>==@toggldb.documents.azure.com:10255/?ssl=true'
 // const url = 'mongodb://localhost:27017/toggl'
 
 var writeFile = false;	//todo make it an option
 const dataPath = "c:\\data\\";
 
-var apiToken = 'b842531c68f5f20ccc091803d5584140'; //todo configure
+var apiToken = ''; //todo configure
 var togglWorkspace = null;
 var RequestOptions = {
 	url: '',
