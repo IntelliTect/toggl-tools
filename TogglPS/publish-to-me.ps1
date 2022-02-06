@@ -1,4 +1,4 @@
-$targetPath = "$Home\Documents\PowerShell\Modules\TogglPS\"
+$targetPath = "$($PSGetPath.CurrentUserModules)\TogglPS\"
 if (-Not $(Test-Path $targetPath)) {
     New-Item $targetPath -ItemType "Directory" -Force
 }
