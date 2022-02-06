@@ -9,6 +9,9 @@
 # References:
 # https://github.com/toggl/toggl_api_docs/blob/master/chapters/time_entries.md
 # 
+# The reports API base URL is https://api.track.toggl.com/reports/api/v2
+# Weekly report URL GET https://api.track.toggl.com/reports/api/v2/weekly
+# Summary report URL: GET https://api.track.toggl.com/reports/api/v2/summary
 
 $global:TglInitialized = $false
 [DateTimeOffset]$global:TglDate = Get-Date
@@ -17,7 +20,7 @@ $global:TglWorkspace = $null
 $global:TglProjectID
 $global:TglUserAgent
 
-$reportUri = 'https://api.track.toggl.com/reports/v2/details'
+$reportUri = 'https://api.track.toggl.com/reports/api/v2/details'
 $projectsUri = 'https://api.track.toggl.com/api/v8/projects'
 
 $global:headers = @{}
@@ -94,7 +97,7 @@ Function Set-TglProject() {
 }
 
 Function Get-TglDetailedReport($UserAgent = $global:TglUserAgent, $WorkspaceID = $TglWorkspace.id) {
-    $detailedReportUri = "https://toggl.com/reports/api/v2/details?user_agent=$UserAgent&workspace_id=$WorkspaceID"
+    $detailedReportUri = "$reportUri?user_agent=$UserAgent&workspace_id=$WorkspaceID"
     $report = Invoke-RestMethod -Uri $detailedReportUri -Method Get -Headers $headers
     $report
 }
