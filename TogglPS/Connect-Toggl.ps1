@@ -110,7 +110,7 @@ function Get-TglDetailedReport2 {
     )
 	
     $pageNumber = 1
-    $urlBase = "https://www.toggl.com/reports/api/v2/details?workspace_id=$WorkspaceID&user_agent=$userAgent&rounding=on&display_hours=decimal"
+    $urlBase = "$reportUri?workspace_id=$WorkspaceID&user_agent=$userAgent&rounding=on&display_hours=decimal"
     if ($Since) {
         $urlBase += "&since=$($Since.ToString('o'))"
     }
