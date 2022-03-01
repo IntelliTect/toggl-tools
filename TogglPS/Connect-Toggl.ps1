@@ -97,7 +97,7 @@ Function Set-TglProject() {
 }
 
 Function Get-TglDetailedReport($UserAgent = $global:TglUserAgent, $WorkspaceID = $TglWorkspace.id) {
-    $detailedReportUri = "$reportUri?user_agent=$UserAgent&workspace_id=$WorkspaceID"
+    $detailedReportUri = $reportUri+"?user_agent=$UserAgent&workspace_id=$WorkspaceID"
     $report = Invoke-RestMethod -Uri $detailedReportUri -Method Get -Headers $headers
     $report
 }
@@ -113,7 +113,7 @@ function Get-TglDetailedReport2 {
     )
 	
     $pageNumber = 1
-    $urlBase = "$reportUri?workspace_id=$WorkspaceID&user_agent=$userAgent&rounding=on&display_hours=decimal"
+    $urlBase = $reportUri+"?workspace_id=$WorkspaceID&user_agent=$userAgent&rounding=on&display_hours=decimal"
     if ($Since) {
         $urlBase += "&since=$($Since.ToString('o'))"
     }
