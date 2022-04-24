@@ -185,4 +185,13 @@ Function Add-TglTimeEntry {
     }
 }
 
+Function Get-TglUsers() {
+    # todo figure out types, if I filter the project list, I lost type info as in
+    #  foreach ($p in ($projects.cid -eq 884250))  { $p, $p.GetType() }
+    
+    $workspaceUsersUri = "https://api.track.toggl.com/api/v8/workspaces/$($TglWorkspace.id)/users"
+    $global:TglUsers = Invoke-RestMethod -Uri $workspaceUsersUri -Method Get -Headers $headers
+    return $global:TglUsers
+}
+
 
