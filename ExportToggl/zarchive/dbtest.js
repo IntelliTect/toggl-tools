@@ -1,7 +1,7 @@
 const mongodb = require('mongodb')
 const mongo = mongodb.MongoClient
 
-const url = 'mongodb://toggldb:w8lwy6xeyIIyoqp3Aeh96RGuDLAnTBINS132Qc8DtpTalbY2ibyo8xeRrCnAQ6WNYrOacvSnvHPdV9jwykPESw==@toggldb.documents.azure.com:10255/?ssl=true'
+const url = '<dburl>'
 
 mongo.connect(url, (err, db) => {
     if (err) {
