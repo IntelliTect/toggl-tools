@@ -19,13 +19,14 @@ $global:TglMe = $null
 $global:TglWorkspace = $null
 $global:TglProjectID
 $global:TglUserAgent
+$global:WorkspaceID = $null
 
 $reportUri = 'https://api.track.toggl.com/reports/api/v2/details'
 $projectsUri = 'https://api.track.toggl.com/api/v8/projects'
 
 $global:headers = @{}
 
-Function Initialize-Toggl([string]$APIToken, [string]$UserAgent) {
+Function Initialize-Toggl([string]$APIToken, [string]$UserAgent, [string]$WorkspaceName) {
     if ($UserAgent) {
         $global:TglUserAgent = $UserAgent
     }
@@ -42,6 +43,13 @@ Function Initialize-Toggl([string]$APIToken, [string]$UserAgent) {
     # todo handle multiple
     $workspacesUri = 'https://api.track.toggl.com/api/v8/workspaces'
     $global:TglWorkspace = Invoke-RestMethod -Uri $workspacesUri -Method Get -Headers $headers
+    foreach($workspace in $TglWorkspace) {
+        if ($workspace.name -eq $WorkspaceName) {
+            $workspaceId = $workspace.id
+            break
+        }
+    }
+    $global:WorkspaceID = $workspaceId
 
     # key info:
     #   user id $me.data.id
@@ -75,7 +83,7 @@ Function Get-TglTimeEntries() {
     return Invoke-RestMethod -Uri $timeEntriesUri -Method Get -Headers $headers
 }
 
-Function Get-TglClients($WorkspaceID = $TglWorkspace.id) {
+Function Get-TglClients($WorkspaceID = $WorkspaceID) {
     #todo get workspace if not gotten
     $workspaceClientsUri = 'https://api.track.toggl.com/api/v8/workspaces/'+$WorkspaceID+'/clients'
     $Tglclients = Invoke-RestMethod -Uri $workspaceClientsUri -Method Get -Headers $headers
@@ -85,7 +93,7 @@ Function Get-TglClients($WorkspaceID = $TglWorkspace.id) {
 Function Get-TglProjects() {
     # todo figure out types, if I filter the project list, I lost type info as in
     #  foreach ($p in ($projects.cid -eq 884250))  { $p, $p.GetType() }
-    $workspaceProjectsUri = 'https://api.track.toggl.com/api/v8/workspaces/'+ $TglWorkspace.id+'/projects?active=both'
+    $workspaceProjectsUri = 'https://api.track.toggl.com/api/v8/workspaces/'+ $WorkspaceID +'/projects?active=both'
     $global:TglProjects = Invoke-RestMethod -Uri $workspaceProjectsUri -Method Get -Headers $headers
     $global:TglProjects
 }
@@ -96,7 +104,7 @@ Function Set-TglProject() {
     return "not implemented"
 }
 
-Function Get-TglDetailedReport($UserAgent = $global:TglUserAgent, $WorkspaceID = $TglWorkspace.id) {
+Function Get-TglDetailedReport($UserAgent = $global:TglUserAgent, $WorkspaceID = $WorkspaceID) {
     $detailedReportUri = $reportUri+"?user_agent=$UserAgent&workspace_id=$WorkspaceID"
     $report = Invoke-RestMethod -Uri $detailedReportUri -Method Get -Headers $headers
     $report
@@ -109,7 +117,7 @@ function Get-TglDetailedReport2 {
         [string]$UserAgent = $null,
         [string]$UserIDs = $null,
         [string]$ProjectIDs = $null,
-        [string]$WorkspaceID = $TglWorkspace.id
+        [string]$WorkspaceID = $WorkspaceID
     )
 	
     $pageNumber = 1
