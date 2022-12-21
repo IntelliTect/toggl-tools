@@ -8,7 +8,7 @@
     "email": "phil@spokas.com"
   },
   "dependencies": {
-    "date-and-time": "^0.6.2",
+    "date-and-time": "^0.14.2",
     "mongodb": "^2.2.34",
     "request": "^2.88.2"
   }
