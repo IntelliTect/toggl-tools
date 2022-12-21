@@ -1,4 +1,4 @@
-$tarlsgetPath = "$($env:PSModulePath.Split(";")[0])\TogglPS\"
+$targetPath = "$($env:PSModulePath.Split(";")[0])\TogglPS\"
 if (-Not $(Test-Path $targetPath)) {
     New-Item $targetPath -ItemType "Directory" -Force
 }
